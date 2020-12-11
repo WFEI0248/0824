@@ -22,7 +22,11 @@
         </el-form-item>
 
         <!-- 图片选择框 -->
-        <el-form-item label="图片" :label-width="formLabelWidth" v-show="form.pid">
+        <el-form-item
+          label="图片"
+          :label-width="formLabelWidth"
+          v-show="form.pid"
+        >
           <el-upload
             class="avatar-uploader"
             action="#"
@@ -59,14 +63,14 @@
   </div>
 </template>
 <script>
-import { reqCateAdd ,reqCateOne,reqCateChange} from "../../../util/request";
+import { reqCateAdd, reqCateOne, reqCateChange } from "../../../util/request";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
   props: ["info"],
   components: {},
   data() {
-      return{
+    return {
       imageUrl: "",
       form: {
         pid: "",
@@ -74,13 +78,12 @@ export default {
         img: null,
         status: 2
       },
-    //   show: false,
+      //   show: false,
 
       formLabelWidth: "120px"
     };
   },
   computed: {
-    //只需要获取menu里面的数据渲染到复选框
     ...mapGetters({
       list: "cate/list"
     })
@@ -99,11 +102,11 @@ export default {
 
     //点击确定
     change() {
-      console.log(this.form)
+      console.log(this.form);
       reqCateAdd(this.form).then(res => {
         this.info.show = false;
         alert("添加成功");
-        // this.requestCateList();
+        this.requestCateList();
       });
     },
     //表单页点击编辑时，表单提供该行的id，弹窗提供方法，在父组件中触发事件以后发送请求获取一条数据渲染到弹窗中
@@ -112,7 +115,7 @@ export default {
       reqCateOne({ id: id }).then(res => {
         this.form = res.data.list;
         this.form.id = id;
-        this.imageUrl = this.$preImg+this.form.img
+        this.imageUrl = this.$preImg + this.form.img;
       });
     },
 
@@ -125,14 +128,14 @@ export default {
 
     //清空弹窗的数据
     empty() {
+      this.imageUrl = ''
       this.form = {
-       form: {
         pid: "",
         catename: "",
         img: null,
         status: 2
-      },
-      };
+      }
+      
     }
   },
   mounted() {}

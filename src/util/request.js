@@ -269,6 +269,69 @@ const reqSpecsDel = data=>{
   })
 }
 
+// ==========  商品管理  ============
+//添加  需要传参
+const reqgoodsAdd = data=>{
+  let form = new FormData()
+  for(let i in data){
+    form.append(i,data[i])
+  }
+  return axios({
+    url:`${baseUrl}/api/goodsadd`,
+    method:'post',
+    data:form,
+  })
+}
+
+//商品总数用于计算分页 不需要传参
+const reqgoodsCount = data =>{
+  return axios({
+    url: `${baseUrl}/api/goodscount`,
+    method: "get",
+    params:data,
+  })
+}
+
+//列表的查询 需要传参
+const reqgoodsList = data=>{
+    return axios({
+        url: `${baseUrl}/api/goodslist`,
+        method: "get",
+        params:data,
+      });
+}
+
+//获取一条 需要传参
+const reqgoodsOne = data=>{
+  return axios({
+    url:`${baseUrl}/api/goodsinfo`,
+    method:'get',
+    params:data,
+  })
+}
+
+//修改
+const reqgoodsChange = data=>{
+  let form = new FormData()
+  for(let i in data){
+    form.append(i,data[i])
+  }
+  return axios({
+    url:`${baseUrl}/api/goodsedit`,
+    method:'post',
+    data:form,
+  })
+}
+
+//删除功能
+const reqgoodsDel = data=>{
+  return axios({
+    url:`${baseUrl}/api/goodsdelete`,
+    method:'post',
+    data,
+  })
+}
+
 
 export { 
   //菜单功能
@@ -304,5 +367,12 @@ export {
     reqSpecsOne,
     reqSpecsChange,
     reqSpecsDel,
+      //商品管理功能
+      reqgoodsList,
+      reqgoodsCount,
+      reqgoodsAdd,
+      reqgoodsOne,
+      reqgoodsChange,
+      reqgoodsDel,
 
 };
