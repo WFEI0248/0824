@@ -146,7 +146,8 @@ export default {
   background-color: #20222a;
 
   color: #333;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   text-align: center;
   line-height: 200px;
   overflow: hidden;
