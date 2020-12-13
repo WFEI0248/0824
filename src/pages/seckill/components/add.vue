@@ -2,19 +2,74 @@
   <div>
     <el-dialog :title="info.title" :visible.sync="info.show">
       <el-form :model="form">
-        <el-form-item label="角色名称" :label-width="width">
-          <el-input v-model="form.rolename" autocomplete="off"></el-input>
+        <!-- 活动名称 input文本输入框 -->
+        <el-form-item label="活动名称" :label-width="width">
+          <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="角色权限" :label-width="width">
-          <el-tree
-            :data="menuList"
-            show-checkbox
-            node-key="id"
-            ref="tree"
-            :props="{ children: 'children', label: 'title' }"
+
+        <!-- 活动限期 时间活动选择器 -->
+        <el-form-item label="活动期限" :label-width="width">
+          <template>
+            <div class="block">
+              <el-date-picker
+                v-model="timeValue"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="chan"
+              >
+              </el-date-picker>
+            </div>
+          </template>
+        </el-form-item>
+
+        <!-- 一级分类 下拉列表 -->
+        <el-form-item label="一级分类" :label-width="width">
+          <el-select
+            @change="firstChange"
+            v-model.number="form.first_cateid"
+            placeholder="--请选择--"
           >
-          </el-tree>
+            <!-- 往这里动态循环添加数据  菜单分类 -->
+            <el-option
+              v-for="item in cateList"
+              :key="item.id"
+              :label="item.catename"
+              :value="item.id"
+            ></el-option>
+          </el-select>
         </el-form-item>
+
+        <!-- 二级分类 下拉列表 -->
+        <el-form-item label="二级分类" :label-width="width">
+          <el-select
+            @change="secChange"
+            v-model.number="form.second_cateid"
+            placeholder="--请选择--"
+          >
+            <!-- 往这里动态循环添加数据  菜单分类 -->
+            <el-option
+              v-for="item in secondGood"
+              :key="item.id"
+              :label="item.catename"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <!-- 三级分类 下拉列表 -->
+        <el-form-item label="商品" :label-width="width">
+          <el-select v-model.number="form.goodsid" placeholder="--请选择--">
+            <el-option
+              v-for="item in treeGood"
+              :key="item.id"
+              :label="item.goodsname"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="状态" :label-width="width">
           <el-switch
             v-model="form.status"
@@ -38,18 +93,25 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { reqRoleAdd, reqRoleOne, reqRoleChange } from "../../../util/request";
+import { reqseckAdd, reqseckOne, reqseckChange } from "../../../util/request";
 export default {
   props: ["info"],
   components: {},
   data() {
     return {
-      width: "70px",
       form: {
-        rolename: "",
-        menus: [],
-        status: 0
+        title: "",
+        begintime: "",
+        endtime: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsid: "",
+        status: 1
       },
+      timeValue: [],
+      secondGood: [],
+      treeGood: [],
+      width: "70px",
       defaultProps: {
         children: "children",
         label: "label"
@@ -58,61 +120,83 @@ export default {
   },
   computed: {
     ...mapGetters({
-      menuList: "menu/list"
+      cateList: "cate/list",
+      goodsList: "goods/list"
     })
   },
   methods: {
     ...mapActions({
-      requestRoleList: "role/requestRoleList",
-      requestMenuList: "menu/requestMenuList"
+      requestcateList: "cate/requestCateList",
+      requestgoodsList: "goods/requestGoodsList",
+      requestseckList:'seck/requestseckList'
     }),
     empty() {
       this.form = {
-        rolename: "",
-        menus: [],
-        status: 2
+        title: "",
+        begintime: "",
+        endtime: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsid: "",
+        status: 1
       };
-      //如果之前form.menus里面没有数据，在setChecjedKeys时就会报错，不能设置给undefined,需要加一个判空的条件
-      if (!this.form.menus) {
-        this.form.menus = this.$refs.tree.setCheckedKeys([]);
-      }
+      this.timeValue= []
+    },
+
+    //活动日期发生改变的时候
+    chan() {
+      this.form.begintime = Date.parse(this.timeValue[0]);
+      this.form.endtime = Date.parse(this.timeValue[1]);
+    },
+    firstChange() {
+      this.form.second_cateid = '',
+      this.form.goodsid = '',
+      this.secondGood = this.cateList.find(item => {
+        return item.id == this.form.first_cateid;
+      }).children;
+    },
+
+    secChange() {
+      this.form.goodsid = '',
+      this.treeGood=[];
+      this.goodsList.map(item => {
+        if( this.form.second_cateid==item.second_cateid ){
+          this.treeGood.push(item)
+        }
+      });
     },
 
     //点击添加的时候实现添加的功能
     add() {
-      //获取选中项返回的数组
-      // console.log(this.$refs.tree.getCheckedKeys());
-      //树形节点没法通过v-model的方式返回数据，所以用element的方法转成想要的形式赋值
-      this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleAdd(this.form).then(res => {
-        this.info.show = false;
-      });
-      this.requestRoleList();
+
+        reqseckAdd(this.form).then(res => {
+          this.info.show = false;
+        });
+        this.requestseckList();
     },
     look(id) {
-      reqRoleOne({ id }).then(res => {
-        console.log(res);
-        this.form = res.data.list;
-        this.form.menus = this.$refs.tree.setCheckedKeys(
-          JSON.parse(res.data.list.menus)
-        );
-        this.form.id = id;
-      });
+        reqseckOne({ id }).then(res => {
+          console.log(res);
+          this.form = res.data.list;
+          this.form.id = id;
+          this.timeValue=[new Date(Number(this.form.begintime)), new Date(Number(this.form.endtime))]
+        });
     },
     update() {
-      this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      reqRoleChange(this.form).then(res => {
-        this.info.show = false;
-        alert("修改成功");
-        this.requestRoleList();
-      });
+        reqseckChange(this.form).then(res => {
+          this.info.show = false;
+          alert("修改成功");
+          this.requestseckList();
+        });
     }
   },
   mounted() {
-    if (!this.menuList.length) {
-      this.requestMenuList();
+    if (!this.cateList.length) {
+      this.requestcateList();
     }
-    console.log(this.menuList);
+    if (!this.goodsList.length) {
+      this.requestgoodsList();
+    }
   }
 };
 </script>

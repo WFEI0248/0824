@@ -1,5 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
+//导入仓库查看是否有登录成功的数据
+import store from "../store/index";
 
 const login = () => import("../pages/login/login");
 const index = () => import("../pages/index/index");
@@ -64,7 +66,7 @@ export const indexRouters = [
   }
 ];
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: "/login",
@@ -89,12 +91,27 @@ export default new Router({
       ]
     },
     {
-      path:'/',
-      component:index
+      path: "/",
+      component: login
     },
     {
       path: "*",
-      redirect: "/index"
+      redirect: "/login"
     }
   ]
 });
+
+//全局守卫
+router.beforeEach((to, from, next) => {
+  //是否去登录页面
+  if (to.path == "/login" || store.state.user.list.menus) {
+    next();
+    //在登录页面已经有登录验证，所以下一步只要判断是否去登录页面就行
+    if (to.path.includes("index") ) {
+      next();
+    }
+  }
+});
+
+
+export default router;

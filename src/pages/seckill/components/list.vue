@@ -9,10 +9,7 @@
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
       <!-- prop中放置循环的属性名 -->
-      <el-table-column prop="id" label="角色编号" sortable width="200">
-      </el-table-column>
-
-      <el-table-column prop="rolename" label="角色名称" sortable width="200">
+      <el-table-column prop="title" label="活动名称"  width="300">
       </el-table-column>
 
       <el-table-column prop="status" label="状态">
@@ -35,7 +32,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { reqRoleDel } from "../../../util/request";
+import { reqseckDel } from "../../../util/request";
 export default {
   components: {},
   data() {
@@ -43,27 +40,27 @@ export default {
   },
   computed: {
     ...mapGetters({
-      list: "role/list"
+      list: "seck/list"
     })
   },
   methods: {
     ...mapActions({
-      requestRoleList: "role/requestRoleList",
+      requestseckList: "seck/requestseckList",
       
     }),
     edit(id) {
       this.$emit("edit", id);
     },
     del(id) {
-      reqRoleDel({ id }).then(res => {
-        this.requestRoleList();
+      reqseckDel({ id }).then(res => {
+        this.requestseckList();
         alert("删除成功");
       });
     }
   },
   mounted() {
    
-    this.requestRoleList();
+    this.requestseckList();
 
   }
 };
