@@ -7,6 +7,7 @@ const baseUrl = "/api";
 axios.interceptors.response.use(res => {
   console.log(`=====请求路劲为${res.config.url}======`);
   console.log(res);
+  //使用拦截 一定要return数据
   return res;
 });
 
